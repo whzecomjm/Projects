@@ -1,0 +1,68 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{OptionPrice}
+\author{pd90506 }
+\date{May 2014}
+
+\begin{document}
+
+\maketitle
+
+\section{Determination of the option price of ZNJS}
+
+Here we want to first determine the european call option price, since by B-S formula
+\begin{equation}
+C(S,t) = SN(d_1)-Ee^{-r(T-t)}N(d_2)
+\end{equation}
+where
+\[
+    d_1 = \frac{\ln{S/E}+(r+\frac{1}{2} \sigma^2)(T-t)}{\sigma \sqrt{T-t}}
+\]
+\[
+    d_2 = \frac{\ln{S/E}+(r-\frac{1}{2} \sigma^2)(T-t)}{\sigma \sqrt{T-t}}
+\]
+Since S, E, T, t, and r are all known, the only unknown parameter is the volatility $\sigma$.
+
+Then how to evaluate the volatility from the historical data? 
+
+Suppose that we have the stock price data every trading day and denote as $S_i$.
+Further assume that the stock price follows the geometric Brownian motion, that is
+\begin{equation}
+S_{i+1} = S_i\exp\{(\mu -\frac12 \sigma^2)(t_{i+1}-t_i) + \sigma \sqrt{t_{i+1}-t_i}Z_i\}
+\end{equation}
+where $Z_i$ follows standard normal distribution.
+
+Take the log of both side, here we have
+\begin{equation}
+\ln{S_{i+1}}-\ln{S_i} = (\mu -\frac12 \sigma^2)(t_{i+1}-t_i) + \sigma \sqrt{t_{i+1}-t_i}Z_i
+\end{equation}
+
+Now let's do some simplifications, denote $D_i = \ln{S_{i+1}}-\ln{S_i}$ and $\Delta t =t_{i+1}-t_i $ then the equation becomes
+\begin{equation}
+D_i = (\mu -\frac12 \sigma^2)\Delta t + \sigma \sqrt{\Delta t}Z_i
+\end{equation}
+
+We can evaluate the variance of $D_i$ using MatLab, say $d^2$, and the corresponding evaluated volatility of $S_i$ must be
+\begin{equation}
+\hat{\sigma}^2 = \frac{d^2}{\Delta t}
+\end{equation}
+
+\section{Evaluation}
+For simplicity, we claim there are 250 trading days per year. And the data we use is taken daily, so the quantity $\Delta t = 1/250$ presumed. To assure the consistency, we only use the open price of each day.
+
+We get the variance $d^2 = 9.0877\times 10^{-4}$, then $\hat{\sigma}^2 = 0.2272$, and then $\hat{\sigma} = 0.4766$. Then substitute it into the pricing formula we can get the answer.
+
+\section{Application}
+Today's stock price $S = 6.96$ , take the interest rate of 10-year treasury bonds as the risk-free interest rate, $r = 4.1348\%$, if we want to sell call options expire in 3 months, with strike price 8 yuan, then the option price can be calculated:
+\[
+    d_1 = \frac{\ln{S/E}+(r+\frac{1}{2} \sigma^2)(T-t)}{\sigma \sqrt{T-t}} = \frac{\ln{6.96/8}+(0.0413+\frac{1}{2} 0.2272)3/12}{0.4766 \sqrt{3/12}}=-0.4219
+\]
+\[
+    d_2 = \frac{\ln{S/E}+(r-\frac{1}{2} \sigma^2)(T-t)}{\sigma \sqrt{T-t}} = \frac{\ln{6.96/8}+(0.0413-\frac{1}{2} 0.2272)3/12}{0.4766 \sqrt{3/12}}= -0.6602
+\]
+and then
+\[
+    C(S,t) = SN(d_1)-Ee^{-r(T-t)}N(d_2) = 6.96N(-0.4219)-8\times e^{-0.0413\times 3/12} N(-0.6602) = 0.3268
+\]
+\end{document}
